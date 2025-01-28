@@ -469,20 +469,6 @@
             </InputGroup>
           </div>
           <!-- DRBT API -->
-          <div class="flex flex-column flex-1 gap-2">
-            <label for="drbt-input">WeDaFloor API key&nbsp;
-              <InfoButton
-                text="In order to automatically set or unset token rug status in WeDaFloor database when clicking Rug action in the call logs, enter the API key provided by @DeFiRobot_Helper_Bot with /api_token command"
-                class="align-self-start" />
-            </label>
-            <InputGroup>
-              <InputGroupAddon>
-                <i class="pi pi-key"></i>
-              </InputGroupAddon>
-              <InputText v-model.trim="state.drbtApiKey" id="drbt-input" :pt="getPtNumberInput()"
-                class="settingInput" />
-            </InputGroup>
-          </div>
         </div>
         <div class="flex md:flex-row flex-column flex-wrap md:align-items-center gap-3 mt-4">
           <!-- PRICE IMPACT -->
