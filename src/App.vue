@@ -1,120 +1,69 @@
 <template>
   <header
-    class="text-xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-color-secondary text-center xl:text-left my-2 ml-0 xl:ml-6 flex flex-row align-items-center"
-  >
-    <span class="flex-auto">Backtesting profits from DRBT</span>
+    class="flex flex-row align-items-center my-2 ml-0 xl:ml-6 font-light text-center text-color-secondary text-xl md:text-3xl lg:text-4xl xl:text-5xl xl:text-left">
+    <span class="flex-auto">Backtesting profits from WeDaFloor (huguesjacquot Version)</span>
 
-    <Button
-      v-if="withAccuracyAddy"
-      icon="pi pi-info"
-      aria-label="Show accuracy"
-      outlined
-      rounded
-      class="w-2rem h-2rem md:w-3rem md:h-3rem mx-1 md:mx-2 xl:mx-4"
-      @click="showAccuracy = true"
-    />
-    <Button
-      icon="pi pi-heart-fill"
-      aria-label="Donate"
-      outlined
-      rounded
-      class="w-2rem h-2rem md:w-3rem md:h-3rem mx-1 md:mx-2 xl:mx-4"
-      @click="showDonation = true"
-    />
+    <Button v-if="withAccuracyAddy" icon="pi pi-info" aria-label="Show accuracy" outlined rounded
+      class="mx-1 md:mx-2 xl:mx-4 w-2rem md:w-3rem h-2rem md:h-3rem" @click="showAccuracy = true" />
+    <Button icon="pi pi-heart-fill" aria-label="Donate" outlined rounded
+      class="mx-1 md:mx-2 xl:mx-4 w-2rem md:w-3rem h-2rem md:h-3rem" @click="showDonation = true" />
   </header>
 
-  <div v-if="redirect" class="text-center xl:text-left ml-0 xl:ml-6 mr-7 xl:mr-0 pl-0 xl:pl-1">
+  <div v-if="redirect" class="mr-7 xl:mr-0 ml-0 xl:ml-6 pl-0 xl:pl-1 text-center xl:text-left">
     The application moved to <a href="https://drbt-profits.ansett.xyz">drbt-profits.ansett.xyz</a>
   </div>
 
   <main v-else>
     <!-- CONFIG -->
     <div
-      class="flex flex-column xl:flex-row gap-3 xl:gap-1 align-items-center xl:align-items-start justify-content-center"
-    >
-      <div class="w-screen xl:w-6 m-1 xl:m-4" style="max-width: min(95vw, 75rem)">
-        <FileUpload
-          ref="uploader"
-          mode="advanced"
-          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          multiple
-          :showUploadButton="false"
-          :showCancelButton="false"
-          chooseLabel="&nbsp;Import"
-          :pt="{
+      class="flex xl:flex-row flex-column justify-content-center align-items-center xl:align-items-start gap-3 xl:gap-1">
+      <div class="m-1 xl:m-4 w-screen xl:w-6" style="max-width: min(95vw, 75rem)">
+        <FileUpload ref="uploader" mode="advanced"
+          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple :showUploadButton="false"
+          :showCancelButton="false" chooseLabel="&nbsp;Import" :pt="{
             content: 'p-3 xl:p-5',
-          }"
-          @select="onUpload($event)"
-        >
+          }" @select="onUpload($event)">
           <template #empty>
-            <ProgressSpinner
-              v-if="uploading"
-              class="absolute top-50 left-50"
-              style="width: 99px; height: 99px; transform: translate(-50%, -88%); zindex: 99"
-              :pt="{
+            <ProgressSpinner v-if="uploading" class="top-50 left-50 absolute"
+              style="width: 99px; height: 99px; transform: translate(-50%, -88%); zindex: 99" :pt="{
                 spinner: { style: { animationDuration: '0s' } },
-              }"
-            />
+              }" />
 
-            <div class="flex flex-column m-1 align-items-center justify-content-center">
-              <i
-                class="pi pi-file mb-4"
-                :style="{
+            <div class="flex flex-column justify-content-center align-items-center m-1">
+              <i class="mb-4 pi pi-file" :style="{
                   fontSize: '5.25rem',
                   color: selectedFile ? 'var(--primary-color)' : 'var(--cyan-300)',
-                }"
-              />
+                }" />
 
               <template v-if="selectedFile">
                 <InputGroup class="w-auto">
-                  <Dropdown
-                    v-model="current"
-                    optionLabel="fileName"
-                    :options="archives"
-                    aria-label="Current calls file"
-                    style="max-width: 21rem"
-                    scrollHeight="300px"
-                  >
+                  <Dropdown v-model="current" optionLabel="fileName" :options="archives" aria-label="Current calls file"
+                    style="max-width: 21rem" scrollHeight="300px">
                     <template #option="{ option, index }">
                       <div class="flex align-items-center gap-3">
                         <div class="flex-auto">{{ option.fileName }}</div>
-                        <Button
-                          icon="pi pi-trash"
-                          severity="secondary"
-                          text
-                          rounded
-                          size="small"
-                          aria-label="Delete"
-                          @click.stop="removeArchive(index)"
-                        />
+                        <Button icon="pi pi-trash" severity="secondary" text rounded size="small" aria-label="Delete"
+                          @click.stop="removeArchive(index)" />
                       </div>
                     </template>
                   </Dropdown>
-                  <Button
-                    v-if="archives.length"
-                    icon="pi pi-code"
-                    outlined
-                    :disabled="archives.length < 2"
+                  <Button v-if="archives.length" icon="pi pi-code" outlined :disabled="archives.length < 2"
                     v-tooltip.bottom="{
                       value:
                         archives.length < 2
                           ? 'You can upload other XLSX to compare calls'
                           : 'Examine differences between 2 files',
                       showDelay: 500,
-                    }"
-                    aria-label="Difference"
-                    style="pointer-events: auto"
-                    @click="showDiff = true"
-                  >
+                    }" aria-label="Difference" style="pointer-events: auto" @click="showDiff = true">
                     <template #icon>
-                      <span class="material-symbols-outlined cursor-pointer">difference</span>
+                      <span class="cursor-pointer material-symbols-outlined">difference</span>
                     </template>
                   </Button>
                 </InputGroup>
               </template>
               <template v-else>
-                <p class="text-center">Drag and drop a DRBT backtest export</p>
-                <p class="text-center text-sm font-italic text-color-secondary">
+                <p class="text-center">Drag and drop a WeDaFloor backtest export</p>
+                <p class="text-center text-color-secondary text-sm font-italic">
                   Nothing is uploaded, computation is done by your browser
                 </p>
               </template>
@@ -131,45 +80,25 @@
         <Accordion :activeIndex="[0]" multiple lazy class="mt-5">
           <!-- RESULTS -->
           <AccordionTab header="STATISTICS">
-            <Statistics
-              :loading="loading"
-              info
-              :finalETH="finalETH"
-              :drawdown="drawdown"
-              :volume="volume"
-              :worstDrawdown="worstDrawdown"
-              :counters="counters"
-              :nbCalls="filteredCalls.length"
-              :no-api-key="!state.chainApiKey"
-              :full-stats="state.showFullStats"
-              @fullStats="state.showFullStats = $event"
-            />
+            <Statistics :loading="loading" info :finalETH="finalETH" :drawdown="drawdown" :volume="volume"
+              :worstDrawdown="worstDrawdown" :counters="counters" :nbCalls="filteredCalls.length"
+              :no-api-key="!state.chainApiKey" :full-stats="state.showFullStats"
+              @fullStats="state.showFullStats = $event" />
           </AccordionTab>
 
           <!-- LOGS -->
-          <AccordionTab
-            header="LOGS"
-            :pt="{
+          <AccordionTab header="LOGS" :pt="{
               root: { class: 'relative' },
               content: { class: 'p-0' },
-            }"
-            ><LogsTable
-              :logs="logs"
-              v-model:textual="state.textLogs"
-              v-model:selectedColumns="state.logsColumns"
-              withDisplaySwitch
-              withActions
-              :screener-url="state.screenerUrl"
-              @ignore="ignoreCa"
-              @rug="onRug"
-              @exportXlsx="exportXlsx"
-            />
+            }">
+            <LogsTable :logs="logs" v-model:textual="state.textLogs" v-model:selectedColumns="state.logsColumns"
+              withDisplaySwitch withActions :screener-url="state.screenerUrl" @ignore="ignoreCa" @rug="onRug"
+              @exportXlsx="exportXlsx" />
           </AccordionTab>
 
           <!-- TARGETS -->
           <AccordionTab header="TARGET SIMULATOR" :pt="{ content: { class: 'p-0' } }">
-            <TargetFinder
-              :data="{
+            <TargetFinder :data="{
                 calls: filteredCalls,
                 position: state.position,
                 gweiDelta: state.gweiDelta,
@@ -177,8 +106,7 @@
                 buyTaxInXs: state.buyTaxInXs,
                 feeInXs: state.feeInXs,
                 chainApiKey: state.chainApiKey,
-              }"
-            />
+              }" />
           </AccordionTab>
 
           <!-- ATH -->
@@ -193,83 +121,47 @@
 
           <!-- HASHES -->
           <AccordionTab header="FUNCTIONS HASH" :pt="{ content: { class: 'p-0' } }">
-            <HashTable
-              :lines="hashesWithTags"
-              filter-template="~HashF.str.contains('{}', na=False)"
-              v-model:selectedColumns="state.hashColumns"
-              :screener-url="state.screenerUrl"
-              @removeTag="removeTag"
-              @addTag="addTag"
-            />
+            <HashTable :lines="hashesWithTags" filter-template="~HashF.str.contains('{}', na=False)"
+              v-model:selectedColumns="state.hashColumns" :screener-url="state.screenerUrl" @removeTag="removeTag"
+              @addTag="addTag" />
           </AccordionTab>
 
           <!-- SIGNATURES -->
           <AccordionTab header="FUNCTION SIGNATURE" :pt="{ content: { class: 'p-0' } }">
-            <HashTable
-              :lines="signaturesWithTags"
-              filter-template="~FList.str.contains('{}', na=False)"
-              v-model:selectedColumns="state.hashColumns"
-              :screener-url="state.screenerUrl"
-              @removeTag="removeTag"
-              @addTag="addTag"
-            />
+            <HashTable :lines="signaturesWithTags" filter-template="~FList.str.contains('{}', na=False)"
+              v-model:selectedColumns="state.hashColumns" :screener-url="state.screenerUrl" @removeTag="removeTag"
+              @addTag="addTag" />
           </AccordionTab>
         </Accordion>
       </div>
 
-      <div
-        class="flex flex-column mx-1 xl:mx-4 my-2 gap-3 lg:gap-4"
-        style="max-width: min(95vw, 60rem)"
-      >
+      <div class="flex flex-column gap-3 lg:gap-4 mx-1 xl:mx-4 my-2" style="max-width: min(95vw, 60rem)">
         <div class="flex flex-row flex-wrap gap-3 lg:gap-4 mb-3">
           <!-- POSITION -->
-          <div class="flex flex-column gap-2 flex-1">
+          <div class="flex flex-column flex-1 gap-2">
             <label for="position-input">Max bag</label>
             <InputGroup>
               <InputGroupAddon>
                 <i class="pi pi-wallet"></i>
               </InputGroupAddon>
-              <InputNumber
-                v-model="state.position"
-                id="position-input"
-                showButtons
-                buttonLayout="stacked"
-                suffix=" Ξ"
-                :min="0.005"
-                mode="decimal"
-                :step="0.005"
-                :pt="getPtNumberInput()"
-                class="settingInput"
-                style="height: 4rem"
-              />
+              <InputNumber v-model="state.position" id="position-input" showButtons buttonLayout="stacked" suffix=" Ξ"
+                :min="0.005" mode="decimal" :step="0.005" :pt="getPtNumberInput()" class="settingInput"
+                style="height: 4rem" />
             </InputGroup>
           </div>
 
           <!-- GAS PRICE -->
-          <div class="flex flex-row align-items-end flex-1">
-            <div class="flex flex-column gap-2 flex-grow-1">
-              <label for="gwei-input"
-                >Priority (GWEI delta) {{ state.conditionalPrio ? 'based on bribes' : '' }}</label
-              >
+          <div class="flex flex-row flex-1 align-items-end">
+            <div class="flex flex-column flex-grow-1 gap-2">
+              <label for="gwei-input">Priority (GWEI delta) {{ state.conditionalPrio ? 'based on bribes' : '' }}</label>
               <InputGroup>
                 <InputGroupAddon>
                   <span class="material-symbols-outlined">local_gas_station</span>
                 </InputGroupAddon>
-                <InputNumber
-                  v-model="state.gweiDelta"
-                  id="gwei-input"
-                  showButtons
-                  buttonLayout="stacked"
-                  :min="1"
-                  :step="1"
-                  mode="decimal"
-                  :minFractionDigits="1"
-                  :maxFractionDigits="1"
-                  :disabled="state.conditionalPrio"
-                  :pt="getPtNumberInput()"
-                  class="settingInput"
-                  style="height: 4rem"
-                />
+                <InputNumber v-model="state.gweiDelta" id="gwei-input" showButtons buttonLayout="stacked" :min="1"
+                  :step="1" mode="decimal" :minFractionDigits="1" :maxFractionDigits="1"
+                  :disabled="state.conditionalPrio" :pt="getPtNumberInput()" class="settingInput"
+                  style="height: 4rem" />
               </InputGroup>
             </div>
             <!-- CONDITIONAL PRIO SWITCH -->
@@ -279,7 +171,7 @@
                 value: `Priority based on bribes`,
                 showDelay: 500,
               }"
-              class="flex flex-column gap-1 mb-3 align-items-center ml-4 mr-2"
+              class="flex flex-column align-items-center gap-1 mr-2 mb-3 ml-4"
             >
               <label for="conditional-prio" class="text-xs">Conditionnal</label>
               <InputSwitch v-model="state.conditionalPrio" inputId="conditional-prio" />
@@ -302,16 +194,10 @@
         </div>
 
         <!-- TP -->
-        <div
-          v-for="(takeProfit, index) in state.takeProfits"
-          :key="index"
-          class="flex flex-row flex-wrap gap-2 relative"
-        >
-          <label :for="'tp-input' + index" class="min-w-full"
-            >Take profit target {{ index + 1 }}
-            <span class="text-xs"
-              >(&hairsp;{{ getTakeProfitDescription(takeProfit) }}&hairsp;)</span
-            >
+        <div v-for="(takeProfit, index) in state.takeProfits" :key="index"
+          class="relative flex flex-row flex-wrap gap-2">
+          <label :for="'tp-input' + index" class="min-w-full">Take profit target {{ index + 1 }}
+            <span class="text-xs">(&hairsp;{{ getTakeProfitDescription(takeProfit) }}&hairsp;)</span>
           </label>
 
           <!-- TP size -->
@@ -319,59 +205,28 @@
             <InputGroupAddon>
               <i class="pi pi-send target-icon"></i>
             </InputGroupAddon>
-            <div
-              v-if="takeProfit.size === INITIAL_TP_SIZE_CODE"
-              class="flex flex-row align-items-center p-3 border-1 border-solid surface-border border-round-right"
-            >
+            <div v-if="takeProfit.size === INITIAL_TP_SIZE_CODE"
+              class="flex flex-row align-items-center border-1 p-3 surface-border border-round-right border-solid">
               Initial
             </div>
-            <InputNumber
-              v-else
-              v-model="takeProfit.size"
-              :id="'tp-input' + index"
-              showButtons
-              buttonLayout="stacked"
-              style="height: 4rem"
-              suffix="%"
-              :min="0"
-              :max="getMaxSize(index)"
-              :step="10"
-              :pt="getPtNumberInput()"
-              class="settingInputSmall"
-            />
+            <InputNumber v-else v-model="takeProfit.size" :id="'tp-input' + index" showButtons buttonLayout="stacked"
+              style="height: 4rem" suffix="%" :min="0" :max="getMaxSize(index)" :step="10" :pt="getPtNumberInput()"
+              class="settingInputSmall" />
           </InputGroup>
           <!-- TP Xs -->
           <InputGroup class="flex-1">
-            <InputNumber
-              v-model="takeProfit.xs"
-              showButtons
-              buttonLayout="stacked"
-              style="height: 4rem"
-              suffix="x"
-              :min="1"
-              :step="xsStep"
-              :disabled="!takeProfit.withXs"
-              class="settingInputSmall"
-              :pt="getPtNumberInput()"
-            />
+            <InputNumber v-model="takeProfit.xs" showButtons buttonLayout="stacked" style="height: 4rem" suffix="x"
+              :min="1" :step="xsStep" :disabled="!takeProfit.withXs" class="settingInputSmall"
+              :pt="getPtNumberInput()" />
             <InputGroupAddon>
               <Checkbox v-model="takeProfit.withXs" binary />
             </InputGroupAddon>
           </InputGroup>
           <!-- TP ETH -->
           <InputGroup class="flex-1">
-            <InputNumber
-              v-model="takeProfit.eth"
-              showButtons
-              buttonLayout="stacked"
-              style="height: 4rem"
-              suffix=" Ξ"
-              :min="0"
-              :step="ethStep"
-              :disabled="!takeProfit.withEth"
-              class="settingInputSmall"
-              :pt="getPtNumberInput()"
-            />
+            <InputNumber v-model="takeProfit.eth" showButtons buttonLayout="stacked" style="height: 4rem" suffix=" Ξ"
+              :min="0" :step="ethStep" :disabled="!takeProfit.withEth" class="settingInputSmall"
+              :pt="getPtNumberInput()" />
             <InputGroupAddon>
               <Checkbox v-model="takeProfit.withEth" binary />
             </InputGroupAddon>
@@ -379,73 +234,36 @@
           <div class="flex flex-row flex-1 gap-2">
             <!-- TP MC -->
             <InputGroup>
-              <InputNumber
-                v-model="takeProfit.mc"
-                showButtons
-                buttonLayout="stacked"
-                style="height: 4rem"
-                prefix="$"
-                :min="0"
-                :step="mcStep"
-                :pt="getPtNumberInput()"
-                :disabled="!takeProfit.withMc"
-                class="settingInput"
-              />
+              <InputNumber v-model="takeProfit.mc" showButtons buttonLayout="stacked" style="height: 4rem" prefix="$"
+                :min="0" :step="mcStep" :pt="getPtNumberInput()" :disabled="!takeProfit.withMc" class="settingInput" />
               <InputGroupAddon>
                 <Checkbox v-model="takeProfit.withMc" binary />
               </InputGroupAddon>
             </InputGroup>
             <!-- logic -->
-            <SelectButton
-              v-model="takeProfit.andLogic"
-              :options="[
+            <SelectButton v-model="takeProfit.andLogic" :options="[
                 { name: 'AND', value: true },
                 { name: 'OR', value: false },
-              ]"
-              optionLabel="name"
-              optionValue="value"
-              :allowEmpty="false"
-              :disabled="!isMultiTakeProfit(takeProfit)"
-              aria-label="Logic"
-              class="flex flex-row h-full p-0"
-              :pt="{
+              ]" optionLabel="name" optionValue="value" :allowEmpty="false" :disabled="!isMultiTakeProfit(takeProfit)"
+              aria-label="Logic" class="flex flex-row p-0 h-full" :pt="{
                 button: {
                   class: ['p-button-sm', 'p-2'],
                 },
-              }"
-            />
+              }" />
             <!-- Remove or add target -->
-            <div
-              :class="[
+            <div :class="[
                 'flex flex-column p-0',
                 state.takeProfits.length > 1 ? 'justify-content-evenly' : 'justify-content-center',
-              ]"
-            >
-              <Button
-                v-if="index"
-                icon="pi pi-plus"
-                text
-                aria-label="Add before"
-                class="p-0"
-                v-tooltip.top="{
+              ]">
+              <Button v-if="index" icon="pi pi-plus" text aria-label="Add before" class="p-0" v-tooltip.top="{
                   value: `Add a target before this one`,
                   showDelay: 500,
-                }"
-                @click="addTarget(index)"
-              />
-              <Button
-                v-if="state.takeProfits.length > 1 && index"
-                icon="pi pi-trash"
-                text
-                severity="secondary"
-                aria-label="Remove"
-                class="p-0"
-                v-tooltip.top="{
+                }" @click="addTarget(index)" />
+              <Button v-if="state.takeProfits.length > 1 && index" icon="pi pi-trash" text severity="secondary"
+                aria-label="Remove" class="p-0" v-tooltip.top="{
                   value: `Remove this target`,
                   showDelay: 500,
-                }"
-                @click="removeTarget(index)"
-              />
+                }" @click="removeTarget(index)" />
             </div>
           </div>
         </div>
@@ -458,197 +276,110 @@
           <Button class="my-3 align-self-start" @click="addTarget()">Add a target</Button>
 
           <!-- AUTO REDISTRIBUTE -->
-          <div class="flex flex-row gap-2 align-items-center">
-            <Checkbox
-              inputId="redisOption"
-              v-model="state.autoRedistributeTargets"
-              binary
-              class="flex-shrink-0"
-            />
+          <div class="flex flex-row align-items-center gap-2">
+            <Checkbox inputId="redisOption" v-model="state.autoRedistributeTargets" binary class="flex-shrink-0" />
             <label for="redisOption">Redistribute </label>
             <InfoButton
               text="If activated, when you add or remove a target, size % for each target is recalculated as an equal share from 100%"
-              class="align-self-start"
-            />
+              class="align-self-start" />
           </div>
 
           <template v-if="state.takeProfits.length >= 2">
-            <div class="flex flex-row gap-2 align-items-center">
-              <Dropdown
-                v-model="incAllTargetKind"
-                :options="['All Xs', 'All Ξ', 'All MC']"
-                class="flex-none"
-                :pt="{
+            <div class="flex flex-row align-items-center gap-2">
+              <Dropdown v-model="incAllTargetKind" :options="['All Xs', 'All Ξ', 'All MC']" class="flex-none" :pt="{
                   root: { class: 'narrowInput' },
                   label: { class: 'narrowInput' },
                   item: { class: 'pr-5' },
-                }"
-              />
-              <Button
-                icon="pi pi-chevron-down"
-                size="small"
-                severity="secondary"
-                outlined
-                class="w-2rem"
-                aria-label="Decrement"
-                v-tooltip.top="{
+                }" />
+              <Button icon="pi pi-chevron-down" size="small" severity="secondary" outlined class="w-2rem"
+                aria-label="Decrement" v-tooltip.top="{
                   value: `${incAllTargetKind} targets will decrease by ${stepForAllKind[incAllTargetKind]}`,
                   showDelay: 500,
-                }"
-                @click="updateAllTarget(false)"
-              />
-              <Button
-                icon="pi pi-chevron-up"
-                size="small"
-                severity="secondary"
-                outlined
-                class="w-2rem"
-                aria-label="Increment"
-                v-tooltip.top="{
+                }" @click="updateAllTarget(false)" />
+              <Button icon="pi pi-chevron-up" size="small" severity="secondary" outlined class="w-2rem"
+                aria-label="Increment" v-tooltip.top="{
                   value: `${incAllTargetKind} targets will increase by ${stepForAllKind[incAllTargetKind]}`,
                   showDelay: 500,
-                }"
-                @click="updateAllTarget(true)"
-              />
+                }" @click="updateAllTarget(true)" />
             </div>
           </template>
 
           <!-- Targets import/export -->
-          <div class="flex flex-row gap-2 align-items-center">
-            <FileUpload
-              ref="targetUploader"
-              mode="basic"
-              accept="application/json"
-              chooseLabel="&nbsp;Import"
-              :pt="{
+          <div class="flex flex-row align-items-center gap-2">
+            <FileUpload ref="targetUploader" mode="basic" accept="application/json" chooseLabel="&nbsp;Import" :pt="{
                 chooseButton: {
                   class: 'p-button-icon-only p-button-secondary p-button-outlined small-button',
                 },
-              }"
-              v-tooltip.top="{
+              }" v-tooltip.top="{
                 value: 'Import targets',
                 showDelay: 500,
-              }"
-              @select="importTargets($event)"
-            >
+              }" @select="importTargets($event)">
               <template #uploadicon>
                 <i class="pi pi-file-import"></i>
               </template>
             </FileUpload>
-            <Button
-              aria-label="Export targets"
-              icon="pi pi-file-export"
-              outlined
-              severity="secondary"
-              v-tooltip.top="{
+            <Button aria-label="Export targets" icon="pi pi-file-export" outlined severity="secondary" v-tooltip.top="{
                 value: 'Export targets',
                 showDelay: 500,
-              }"
-              class="small-button"
-              @click="exportTargets()"
-            />
+              }" class="small-button" @click="exportTargets()" />
           </div>
         </div>
 
         <!-- START -->
         <div class="flex flex-row flex-wrap gap-2">
-          <label for="start-input" class="min-w-full"
-            >Start date <span class="text-xs">(no limit if empty)</span></label
-          >
+          <label for="start-input" class="min-w-full">Start date <span class="text-xs">(no limit if
+              empty)</span></label>
 
           <InputGroup class="flex-50">
             <InputGroupAddon>
               <span class="material-symbols-outlined">today</span>
             </InputGroupAddon>
             <Button icon="pi pi-minus" outlined severity="secondary" @click="incStartDate(-1)" />
-            <InputMask
-              v-model="selection.startDate"
-              id="start-input"
-              style="height: 4rem"
-              mask="9999-99-99"
-              placeholder="YYYY-MM-DD"
-              class="settingInput"
-            />
+            <InputMask v-model="selection.startDate" id="start-input" style="height: 4rem" mask="9999-99-99"
+              placeholder="YYYY-MM-DD" class="settingInput" />
             <Button icon="pi pi-plus" outlined severity="secondary" @click="incStartDate()" />
           </InputGroup>
           <InputGroup class="flex-1">
-            <InputMask
-              v-model="selection.startHour"
-              style="height: 4rem"
-              mask="99:99"
-              placeholder="00:00"
-              class="settingInputSmall"
-            />
+            <InputMask v-model="selection.startHour" style="height: 4rem" mask="99:99" placeholder="00:00"
+              class="settingInputSmall" />
             <!-- prettier-ignore -->
-            <Button
-              icon="pi pi-times"
-              outlined
-              severity="secondary"
-              @click="
+            <Button icon="pi pi-times" outlined severity="secondary" @click="
                 selection.startDate = '';
                 selection.startHour = '';
-              "
-            />
+              " />
           </InputGroup>
         </div>
         <!-- END DATE -->
         <div class="flex flex-row flex-wrap gap-2">
-          <label for="end-input" class="min-w-full"
-            >End date <span class="text-xs">(no limit if empty)</span></label
-          >
+          <label for="end-input" class="min-w-full">End date <span class="text-xs">(no limit if empty)</span></label>
           <InputGroup class="flex-50">
             <InputGroupAddon>
               <span class="material-symbols-outlined">event</span>
             </InputGroupAddon>
             <Button icon="pi pi-minus" outlined severity="secondary" @click="incEndDate(-1)" />
-            <InputMask
-              v-model="selection.endDate"
-              id="end-input"
-              style="height: 4rem"
-              mask="9999-99-99"
-              placeholder="YYYY-MM-DD"
-              class="settingInput"
-            />
+            <InputMask v-model="selection.endDate" id="end-input" style="height: 4rem" mask="9999-99-99"
+              placeholder="YYYY-MM-DD" class="settingInput" />
             <Button icon="pi pi-plus" outlined severity="secondary" @click="incEndDate()" />
           </InputGroup>
           <InputGroup class="flex-1">
-            <InputMask
-              v-model="selection.endHour"
-              style="height: 4rem"
-              mask="99:99"
-              placeholder="00:00"
-              class="settingInputSmall"
-            />
+            <InputMask v-model="selection.endHour" style="height: 4rem" mask="99:99" placeholder="00:00"
+              class="settingInputSmall" />
             <!-- prettier-ignore -->
-            <Button
-              icon="pi pi-times"
-              outlined
-              severity="secondary"
-              @click="
+            <Button icon="pi pi-times" outlined severity="secondary" @click="
                 selection.endDate = '';
                 selection.endHour = '';
-              "
-            />
+              " />
           </InputGroup>
         </div>
         <!-- DAYS & HOURS -->
         <div class="flex flex-column gap-4">
           <div class="flex gap-2 pt-1">
             <InputSwitch v-model="state.withHours" inputId="hours-global" />
-            <label for="hours-global"
-              >Custom trading periods<span class="text-xs"> (UTC)</span></label
-            >
+            <label for="hours-global">Custom trading periods<span class="text-xs"> (UTC)</span></label>
           </div>
-          <div v-if="state.withHours" class="card flex flex-wrap justify-content-start gap-3">
-            <div
-              v-for="day in allDays"
-              :key="day.index"
-              class="flex gap-2 flex-wrap align-items-center"
-            >
-              <TriStateCheckbox
-                v-model="state.week[day.index]"
-                :inputId="day.name"
-                :pt="{
+          <div v-if="state.withHours" class="flex flex-wrap justify-content-start gap-3 card">
+            <div v-for="day in allDays" :key="day.index" class="flex flex-wrap align-items-center gap-2">
+              <TriStateCheckbox v-model="state.week[day.index]" :inputId="day.name" :pt="{
                   checkbox: {
                     class:
                       state.week[day.index] === false
@@ -657,8 +388,7 @@
                         ? 'bg-primary border-primary'
                         : undefined,
                   },
-                }"
-              >
+                }">
                 <template #nullableicon="scope"></template>
               </TriStateCheckbox>
               <label :for="day.name" class="">
@@ -666,12 +396,8 @@
               </label>
 
               <template v-for="hour in allHours" :key="`${day.name}-${hour}`">
-                <Checkbox
-                  v-model="state.hours[day.index][hour]"
-                  binary
-                  :disabled="state.week[day.index] !== null"
-                  :inputId="`${day.name}-${hour}`"
-                  :pt="{
+                <Checkbox v-model="state.hours[day.index][hour]" binary :disabled="state.week[day.index] !== null"
+                  :inputId="`${day.name}-${hour}`" :pt="{
                     input: {
                       style:
                         'border: 2px solid #424b57; background: #111827; color: var(--primary-color)',
@@ -679,89 +405,64 @@
                     icon: {
                       class: 'text-primary',
                     },
-                  }"
-                >
+                  }">
                   <template #icon="scope">
-                    <i
-                      :class="[
+                    <i :class="[
                         'pi font-bold text-xs border-primary',
                         scope.checked ? 'pi-check text-primary' : 'pi-times text-orange-300',
                         scope.class,
-                      ]"
-                    ></i>
+                      ]"></i>
                   </template>
                 </Checkbox>
-                <label
-                  :for="`${day.name}-${hour}`"
-                  :class="[
+                <label :for="`${day.name}-${hour}`" :class="[
                     'mr-1',
                     state.week[day.index] === null ? 'text-color-secondary' : 'text-200',
-                  ]"
-                >
+                  ]">
                   {{ hour }}
                 </label>
                 <span v-if="hour === 11" class="flex-br" />
               </template>
-              <span
-                v-if="state.week[day.index] === null"
-                class="ml-1 iconButton text-lg material-symbols-outlined"
+              <span v-if="state.week[day.index] === null" class="ml-1 text-lg iconButton material-symbols-outlined"
                 v-tooltip.bottom="{
                   value: state.hours[day.index][0] ? 'Uncheck all hours' : 'Check all hours',
                   showDelay: 500,
-                }"
-                @click="toggleHours(day.index)"
-                >{{ state.hours[day.index][0] ? 'remove_done' : 'done_all' }}</span
-              >
+                }" @click="toggleHours(day.index)">{{ state.hours[day.index][0] ? 'remove_done' : 'done_all' }}</span>
             </div>
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-3 flex-column md:flex-row md:align-items-end mt-3">
+        <div class="flex md:flex-row flex-column flex-wrap md:align-items-end gap-3 mt-3">
           <!-- MIN CALLS -->
-          <div class="flex flex-column gap-2 flex-1">
+          <div class="flex flex-column flex-1 gap-2">
             <label for="mincalls-input">Minimum calls count to show hashes/sigs</label>
             <InputGroup>
               <InputGroupAddon>
                 <i class="pi pi-megaphone"></i>
               </InputGroupAddon>
-              <InputNumber
-                v-model="state.minCallsForHash"
-                id="mincalls-input"
-                showButtons
-                buttonLayout="stacked"
-                :min="0"
-                :step="5"
-                :pt="getPtNumberInput()"
-                class="settingInput"
-              />
+              <InputNumber v-model="state.minCallsForHash" id="mincalls-input" showButtons buttonLayout="stacked"
+                :min="0" :step="5" :pt="getPtNumberInput()" class="settingInput" />
             </InputGroup>
           </div>
           <!-- DEX URL -->
-          <div class="flex flex-column gap-2 flex-1">
+          <div class="flex flex-column flex-1 gap-2">
             <label for="screener-input">Screener URL</label>
             <InputGroup>
               <InputGroupAddon>
                 <i class="pi pi-chart-line"></i>
               </InputGroupAddon>
-              <InputText
-                v-model.trim="state.screenerUrl"
-                id="screener-input"
-                :pt="getPtNumberInput()"
-                class="settingInput"
-              />
+              <InputText v-model.trim="state.screenerUrl" id="screener-input" :pt="getPtNumberInput()"
+                class="settingInput" />
             </InputGroup>
           </div>
         </div>
-        <div class="flex flex-wrap gap-3 flex-column md:flex-row md:align-items-end">
+        <div class="flex md:flex-row flex-column flex-wrap md:align-items-end gap-3">
           <!-- ALCHEMY API KEY -->
-          <div class="flex flex-column gap-2 flex-1">
-            <label for="api-input"
-              ><a href="https://auth.alchemy.com/signup" target="_blank">Alchemy</a> API key&nbsp;
+          <div class="flex flex-column flex-1 gap-2">
+            <label for="api-input"><a href="https://auth.alchemy.com/signup" target="_blank">Alchemy</a> API key&nbsp;
               <InfoButton
                 text="In order to simulate more accurate swaps, we can fetch mainnet block transaction info (call blocks +1 and sometimes +2) in order to see how many buyers would front-run you, so we can calculate a realistic slippage, even if far from perfect, even if your query might have changed since then and calls delay were different back then.<br />Indeed the app doesn't know your wallet or even if you bought that token at all. It's just your priority vs. real transactions.<br/>Register for free on alchemy.com, create an APP, select Mainnet Ethereum, and then copy the API key from that app to paste it in here."
-                :accent="!state.chainApiKey"
-                class="align-self-start"
-            /></label>
+                :accent="!state.chainApiKey" class="align-self-start" />
+            </label>
             <InputGroup>
               <InputGroupAddon>
                 <i class="pi pi-ethereum"></i>
@@ -770,115 +471,72 @@
             </InputGroup>
           </div>
           <!-- DRBT API -->
-          <div class="flex flex-column gap-2 flex-1">
-            <label for="drbt-input"
-              >DRBT API key&nbsp;
+          <div class="flex flex-column flex-1 gap-2">
+            <label for="drbt-input">WeDaFloor API key&nbsp;
               <InfoButton
-                text="In order to automatically set or unset token rug status in DRBT database when clicking Rug action in the call logs, enter the API key provided by @DeFiRobot_Helper_Bot with /api_token command"
-                class="align-self-start"
-            /></label>
+                text="In order to automatically set or unset token rug status in WeDaFloor database when clicking Rug action in the call logs, enter the API key provided by @DeFiRobot_Helper_Bot with /api_token command"
+                class="align-self-start" />
+            </label>
             <InputGroup>
               <InputGroupAddon>
                 <i class="pi pi-key"></i>
               </InputGroupAddon>
-              <InputText
-                v-model.trim="state.drbtApiKey"
-                id="drbt-input"
-                :pt="getPtNumberInput()"
-                class="settingInput"
-              />
+              <InputText v-model.trim="state.drbtApiKey" id="drbt-input" :pt="getPtNumberInput()"
+                class="settingInput" />
             </InputGroup>
           </div>
         </div>
-        <div class="flex flex-column md:flex-row flex-wrap md:align-items-center gap-3 mt-4">
+        <div class="flex md:flex-row flex-column flex-wrap md:align-items-center gap-3 mt-4">
           <!-- PRICE IMPACT -->
-          <div class="flex flex-row gap-2 align-items-center">
-            <Checkbox
-              inputId="impactOption"
-              v-model="state.withPriceImpact"
-              binary
-              class="flex-shrink-0"
-            />
+          <div class="flex flex-row align-items-center gap-2">
+            <Checkbox inputId="impactOption" v-model="state.withPriceImpact" binary class="flex-shrink-0" />
             <label for="impactOption">Sale price impact </label>
             <InfoButton
               :text="`When selling at each target, a price impact is deduced from the sale by guessing the LP size. So gains are more realistic, especially when selling big bags. You might want to add several take profit targets in order to lower those impacts`"
-              class="align-self-start"
-            />
+              class="align-self-start" />
           </div>
           <!-- TAX TARGET -->
-          <div class="flex flex-row gap-2 align-items-center">
+          <div class="flex flex-row align-items-center gap-2">
             <Checkbox inputId="taxOption" v-model="state.buyTaxInXs" binary class="flex-shrink-0" />
             <label for="taxOption">Targets include tax </label>
             <InfoButton
               text="If activated, buy tax lowers Xs and thus impacts targets. If not activated, buy tax only impacts final profit and not targets"
-              class="align-self-start"
-            />
+              class="align-self-start" />
           </div>
           <!-- GAS TARGET -->
-          <div class="flex flex-row gap-2 align-items-center">
+          <div class="flex flex-row align-items-center gap-2">
             <Checkbox inputId="feeOption" v-model="state.feeInXs" binary class="flex-shrink-0" />
             <label for="feeOption">Targets include gas </label>
             <InfoButton
               text="If activated, Xs target is using the same calculation than sniper bots [profit% = worth/(initial+gas)). If not activated, Xs target is just targetPrice/entryPrice. Whichever you choose, gas cost is just a flat value deduced from profit."
-              class="align-self-start"
-            />
+              class="align-self-start" />
           </div>
         </div>
       </div>
     </div>
 
     <!-- CONDITIONAL PRIORITY VALUES -->
-    <Sidebar
-      ref="conditionalPrioFields"
-      :visible="!!configuringPrios"
-      position="right"
-      :modal="false"
-      header="Used gas priority based on number of bribes"
-      :dismissable="false"
-      :pt="{
+    <Sidebar ref="conditionalPrioFields" :visible="!!configuringPrios" position="right" :modal="false"
+      header="Used gas priority based on number of bribes" :dismissable="false" :pt="{
         root: {
           class: 'w-full md:w-min',
         },
-      }"
-      @update:visible="configuringPrios = false"
-      @hide="configuringPrios = false"
-    >
-      <div class="flex flex-row flex-wrap gap-3 m-2 justify-content-center">
-        <div
-          v-for="snipesThreshold in state.prioBySnipes"
-          :key="snipesThreshold[0]"
-          class="flex flex-column gap-1"
-        >
-          <label :for="'snipe-th-' + snipesThreshold"
-            >{{ getPrioTitle(snipesThreshold[0]) }}
+      }" @update:visible="configuringPrios = false" @hide="configuringPrios = false">
+      <div class="flex flex-row flex-wrap justify-content-center gap-3 m-2">
+        <div v-for="snipesThreshold in state.prioBySnipes" :key="snipesThreshold[0]" class="flex flex-column gap-1">
+          <label :for="'snipe-th-' + snipesThreshold">{{ getPrioTitle(snipesThreshold[0]) }}
           </label>
-          <InputNumber
-            v-model="snipesThreshold[1]"
-            :id="'snipe-th-' + snipesThreshold[0]"
-            showButtons
-            buttonLayout="stacked"
-            :min="1"
-            :step="1"
-            mode="decimal"
-            :minFractionDigits="1"
-            :maxFractionDigits="1"
-            suffix="  GWEI"
-            :pt="getPtNumberInput()"
-            class="settingInput"
-          />
+          <InputNumber v-model="snipesThreshold[1]" :id="'snipe-th-' + snipesThreshold[0]" showButtons
+            buttonLayout="stacked" :min="1" :step="1" mode="decimal" :minFractionDigits="1" :maxFractionDigits="1"
+            suffix="  GWEI" :pt="getPtNumberInput()" class="settingInput" />
         </div>
       </div>
     </Sidebar>
 
     <Toast />
 
-    <DiffDialog
-      v-if="current && showDiff"
-      v-model:logsColumns="state.logsColumns"
-      :archives="archives"
-      :current="current"
-      :screener-url="state.screenerUrl"
-      :computingParams="{
+    <DiffDialog v-if="current && showDiff" v-model:logsColumns="state.logsColumns" :archives="archives"
+      :current="current" :screener-url="state.screenerUrl" :computingParams="{
         position: state.position,
         gweiDelta: state.gweiDelta,
         prioBySnipes: computedPrioBySnipes,
@@ -887,21 +545,14 @@
         chainApiKey: state.chainApiKey,
         takeProfits: JSON.parse(JSON.stringify(state.takeProfits)),
         withPriceImpact: state.withPriceImpact,
-      }"
-      @closed="showDiff = false"
-    />
+      }" @closed="showDiff = false" />
 
     <ScatterDialog v-if="showAccuracy" :data="accuracyLogs" @closed="showAccuracy = false" />
 
-    <Dialog
-      v-model:visible="showDonation"
-      modal
-      dismissableMask
-      :style="{
+    <Dialog v-model:visible="showDonation" modal dismissableMask :style="{
         maxWidth: '80%',
         width: '36rem',
-      }"
-    >
+      }">
       <template #header>&nbsp;</template>
       <p>
         If you want to donate anything so I can invest more time to improve the tool, I'll gladly
@@ -1374,7 +1025,7 @@ const onRug = async (ca: string, isRug: boolean) => {
     toast.add({
       severity: 'warn',
       summary: `Rug status updated locally`,
-      detail: `To update DRBT's database, either get an API key from @DeFiRobot_Helper_Bot with /api_token command and enter it in the field at the end of this app,\n\nor just DM @DeFi_Robot_ETH_bot with the /setrug command from your clipboard and then check with /getruglog`,
+      detail: `To update WeDaFloor's database, either get an API key from @DeFiRobot_Helper_Bot with /api_token command and enter it in the field at the end of this app,\n\nor just DM @DeFi_Robot_ETH_bot with the /setrug command from your clipboard and then check with /getruglog`,
       life: 60000,
     })
   }

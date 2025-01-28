@@ -18,15 +18,15 @@ app.use(PrimeVue)
 app.use(ToastService)
 // app.use(DialogService);
 
-if (typeof Bugsnag !== 'undefined') {
-  Bugsnag.start({
-    apiKey: import.meta.env.VITE_BUGSNAP_API,
-    plugins: [new BugsnagPluginVue()],
-    autoTrackSessions: false,
-    collectUserIp: false,
-  })
-  const bugsnagVue = Bugsnag.getPlugin('vue')!
-  app.use(bugsnagVue)
-}
+// if (typeof Bugsnag !== 'undefined') {
+//   Bugsnag.start({
+//     apiKey: import.meta.env.VITE_BUGSNAP_API,
+//     plugins: [new BugsnagPluginVue()],
+//     autoTrackSessions: false,
+//     collectUserIp: false,
+//   })
+//   const bugsnagVue = Bugsnag.getPlugin('vue')!
+//   app.use(bugsnagVue)
+// }
 
 app.mount('#app')
