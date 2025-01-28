@@ -1,12 +1,10 @@
 <template>
   <header
     class="flex flex-row align-items-center my-2 ml-0 xl:ml-6 font-light text-center text-color-secondary text-xl md:text-3xl lg:text-4xl xl:text-5xl xl:text-left">
-    <span class="flex-auto">Backtesting profits from WeDaFloor (huguesjacquot Version)</span>
+    <span class="flex-auto">Backtesting profits from WeDaFloor</span>
 
     <Button v-if="withAccuracyAddy" icon="pi pi-info" aria-label="Show accuracy" outlined rounded
       class="mx-1 md:mx-2 xl:mx-4 w-2rem md:w-3rem h-2rem md:h-3rem" @click="showAccuracy = true" />
-    <Button icon="pi pi-heart-fill" aria-label="Donate" outlined rounded
-      class="mx-1 md:mx-2 xl:mx-4 w-2rem md:w-3rem h-2rem md:h-3rem" @click="showDonation = true" />
   </header>
 
   <div v-if="redirect" class="mr-7 xl:mr-0 ml-0 xl:ml-6 pl-0 xl:pl-1 text-center xl:text-left">
