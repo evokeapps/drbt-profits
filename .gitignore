@@ -11,7 +11,7 @@ node_modules
 .DS_Store
 coverage
 *.local
-# dist/
+dist/
 dist-ssr/
 .env
 
@@ -26,3 +26,4 @@ dist-ssr/
 *.sw?
 
 *.tsbuildinfo
+.vercel
